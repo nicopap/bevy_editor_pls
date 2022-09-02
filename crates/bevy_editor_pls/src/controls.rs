@@ -1,6 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_editor_pls_core::{editor_window::EditorWindow, Editor, EditorEvent, EditorState};
 use bevy_editor_pls_default_windows::hierarchy::EditorHierarchyEvent;
+use egui::ScrollArea;
 
 #[derive(Debug)]
 pub enum Button {
@@ -335,17 +336,53 @@ impl EditorWindow for ControlsWindow {
     ) {
         let controls = world.get_resource::<EditorControls>().unwrap();
 
-        for action in &[
-            Action::PlayPauseEditor,
-            Action::PauseUnpauseTime,
-            Action::SelectMesh,
-            Action::FocusSelected,
-        ] {
-            ui.label(egui::RichText::new(action.to_string()).strong());
-            let bindings = controls.get(action);
-            for binding in bindings {
-                ui.add(egui::Label::new(format!("{}", binding)).wrap(false));
-            }
-        }
+        ScrollArea::vertical()
+            .auto_shrink([false, false])
+            .show(ui, |ui| {
+                for action in &[
+                    Action::PlayPauseEditor,
+                    Action::PauseUnpauseTime,
+                    Action::SelectMesh,
+                    Action::FocusSelected,
+                ] {
+                    ui.label(egui::RichText::new(action.to_string()).strong());
+                    let bindings = controls.get(action);
+                    for binding in bindings {
+                        ui.add(egui::Label::new(format!("{}", binding)).wrap(false));
+                    }
+                }
+                for (keybind, context, description) in [
+                    ("g", "in editor", "Axis translation mod"),
+                    ("G", "in editor", "Plane translation mod"),
+                    ("s", "in editor", "Uniform scale mod"),
+                    ("r", "in editor", "Rotation mod"),
+                    (
+                        "x,y,z",
+                        "in uniform scale mod",
+                        "Enter non-uniform scale mod",
+                    ),
+                    (
+                        "x,y,z",
+                        "in transform update mod",
+                        "Change transform mod reference axis",
+                    ),
+                    (
+                        "Escape",
+                        "in transform update mod",
+                        "Cancel transform change",
+                    ),
+                    (
+                        "right mouse button",
+                        "in transform update mod",
+                        "Complete transform and exit mod",
+                    ),
+                    ("Shift+left mouse button", "in editor", "Add to selection"),
+                    ("Ctrl+d", "in editor", "duplicate selection"),
+                    ("Ctrl+x", "in editor", "delete selection (cannot undo)"),
+                ] {
+                    ui.label(egui::RichText::new(description.to_string()).strong());
+                    ui.add(egui::Label::new(format!("{keybind}\n    {context}")).wrap(false));
+                }
+            });
     }
 }

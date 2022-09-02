@@ -72,6 +72,7 @@ pub struct CameraWindowState {
     // make sure to keep the `ActiveEditorCamera` marker component in sync with this field
     editor_cam: EditorCamKind,
     pub show_ui: bool,
+    pub transform_gizmo: bool,
 }
 
 impl CameraWindowState {
@@ -107,6 +108,7 @@ impl EditorWindow for CameraWindow {
             }
         });
         ui.checkbox(&mut state.show_ui, "UI");
+        ui.checkbox(&mut state.transform_gizmo, "Transform");
     }
 
     fn app_setup(app: &mut App) {
@@ -244,6 +246,7 @@ fn spawn_editor_cameras(mut commands: Commands) {
         .insert(PanOrbitCamera::default())
         .insert(crate::hierarchy::picking::EditorRayCastSource::new())
         .insert(EditorCamera)
+        .insert(ActiveEditorCamera)
         .insert(EditorCamera3dPanOrbit)
         .insert(HideInEditor)
         .insert(Name::new("Editor Camera 3D Pan/Orbit"));
